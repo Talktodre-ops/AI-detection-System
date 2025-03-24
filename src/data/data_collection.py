@@ -29,7 +29,7 @@ def generate_ai_text(prompt, filename, num_samples=10):
         filename (str): The filename to save the generated text.
         num_samples (int): The number of samples to generate.
     """
-    openai.api_key = "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"  # Replace with your API Key
+    openai.api_key = ""  # Replace with your API Key
     file_path = Path(f"datasets/AI_generated/{filename}")
     
     with open(file_path, "w", encoding="utf-8") as f:
