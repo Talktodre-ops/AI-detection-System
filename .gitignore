@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Virtual environment
+AI-detection/
+
+# Ignore datasets
+src/data/datasets
+
+# Ignore large model files 
+src/model/models/distilroberta/  
+
+# Exclude other large files
+*.safetensors
+*.bin
+*.pt
+
+# Logs
+logs/
+*.log
+
+# Dependency directories
+dist/
+build/
+*.egg-info/
+
+# IDE-specific files
+.idea/
+.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Other temporary files
+*.tmp
+*.swp
