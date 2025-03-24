@@ -1,0 +1,17 @@
+pypdf2
+streamlit
+transformers
+torch
+python-docx 
+pandas
+numpy
+lime
+captum
+streamlit==1.27.3
+transformers==4.30.2
+torch==2.0.1
+pandas==2.0.1
+python-docx==0.8.11
+PyPDF2==3.0.1
+lime==0.2.0.1
+numpy==1.24.3
