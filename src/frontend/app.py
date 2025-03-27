@@ -80,7 +80,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Load model and tokenizer with caching
+
 @st.cache_resource
 def load_model_and_tokenizer():
     model_dir = os.path.abspath("src/model/models/distilroberta")
@@ -99,91 +99,34 @@ def read_file(file: UploadedFile) -> Optional[str]:
     try:
         if file.type == "application/pdf":
             pdf_reader = PyPDF2.PdfReader(file)
-            text = " ".join([page.extract_text() for page in pdf_reader.pages])
+            return " ".join([page.extract_text() for page in pdf_reader.pages])
         elif file.type == "text/plain":
-            text = file.read().decode("utf-8")
+            return file.read().decode("utf-8")
         elif file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
             doc = Document(file)
-            text = " ".join([para.text for para in doc.paragraphs])
+            return " ".join([para.text for para in doc.paragraphs])
         else:
             st.error("Unsupported file type. Please upload PDF, TXT, or DOCX.")
             return None
-        
-        # Replace newlines with spaces to avoid CSV row breaks
-        text = text.replace("\n", " ").replace("\r", " ")
-        return text
     except Exception as e:
         st.error(f"Error reading file: {str(e)}")
         return None
 
-def get_prediction(text, tokenizer, model, max_length=512):
-    """
-    Split text into chunks and predict each chunk, then aggregate results.
-    """
-    tokens = tokenizer.tokenize(text)
-    chunk_size = max_length - 2  # Account for [CLS] and [SEP] tokens
-    chunks = [" ".join(tokens[i:i+chunk_size]) for i in range(0, len(tokens), chunk_size)]
-    
-    predictions = []
-    confidences = []
-    for chunk in chunks:
-        if not chunk.strip():
-            continue
-        
-        inputs = tokenizer(
-            chunk,
-            padding=True,
-            truncation=True,
-            max_length=max_length,
-            return_tensors="pt",
-        ).to("cuda")
-        
-        with torch.no_grad():
-            outputs = model(**inputs)
-            probs = torch.softmax(outputs.logits, dim=1)
-            
-            pred = torch.argmax(probs).item()
-            confidence = torch.max(probs).item()
-            
-            predictions.append(pred)
-            confidences.append(confidence)
-    
-    if not predictions:
-        return 0, 0.0  # Default if no chunks
-    
-    overall_prediction = round(sum(predictions) / len(predictions))
-    overall_confidence = sum(confidences) / len(confidences)
-    
-    return overall_prediction, overall_confidence
-
+# Define predict_proba for LIME
 def predict_proba(text_list):
-    """Helper function for LIME. Returns probabilities for all chunks."""
-    all_probs = []
-    for text in text_list:
-        tokens = tokenizer.tokenize(text)
-        chunk_size = 510  # Max tokens for DistilRoBERTa (512 - 2)
-        chunks = [" ".join(tokens[i:i+chunk_size]) for i in range(0, len(tokens), chunk_size)]
-        
-        probs = []
-        for chunk in chunks:
-            if not chunk.strip():
-                continue
-            inputs = tokenizer(
-                chunk,
-                padding=True,
-                truncation=True,
-                max_length=512,
-                return_tensors="pt",
-            ).to("cuda")
-            
-            with torch.no_grad():
-                outputs = model(**inputs)
-                chunk_probs = torch.softmax(outputs.logits, dim=1).cpu().numpy()
-                probs.append(chunk_probs)
-        
-        # Average probabilities across chunks
-        avg_probs = np.mean(probs, axis=0) if probs else np.array([[0.5, 0.5]])
-    return avg_probs
+    """Return probabilities for all texts in text_list."""
+    inputs = tokenizer(
+        text_list,
+        padding=True,
+        truncation=True,
+        max_length=512,  # Match the model's max context length
+        return_tensors="pt",
+    ).to("cuda")
+    
+    with torch.no_grad():
+        outputs = model(**inputs)
+        probs = torch.softmax(outputs.logits, dim=1).cpu().numpy()
+    return probs
 
 # Title and logo
 st.title("🔍 AI-Generated Text Detector")
@@ -230,7 +173,6 @@ with col2:
 prediction = None
 confidence = None
 confidence_color = None
-chunks = None
 explainer = None
 exp = None
 
@@ -240,41 +182,19 @@ if detect_button:
     if not text.strip():
         st.warning("Please provide text to analyze.")
     else:
-        # Process text (replace newlines before saving)
-        cleaned_text = text.replace("\n", " ").replace("\r", " ")
-        
-        with st.spinner(f"Analyzing {len(cleaned_text.split())} words..."):
-            prediction, confidence = get_prediction(cleaned_text, tokenizer, model)
-        
-        # Save prediction to CSV
-        save_path = "src/data/datasets/user_submissions.csv"
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        
-        data = {
-            "text": [cleaned_text],
-            "predicted_label": [prediction],
-            "confidence": [confidence]
-        }
-        df = pd.DataFrame(data)
-        
-        try:
-            if os.path.exists(save_path):
-                df.to_csv(
-                    save_path, 
-                    mode="a", 
-                    header=False, 
-                    index=False,
-                    quoting=csv.QUOTE_MINIMAL  # Fix for unescaped commas
-                )
-            else:
-                df.to_csv(
-                    save_path, 
-                    index=False,
-                    quoting=csv.QUOTE_MINIMAL
-                )
-            st.success(f"Prediction saved to {save_path} for future retraining!")
-        except PermissionError:
-            st.error("Permission denied. Could not save prediction data.")
+        with st.spinner("Analyzing..."):
+            inputs = tokenizer(
+                text,
+                padding=True,
+                truncation=True,
+                max_length=512,
+                return_tensors="pt",
+            ).to("cuda")
+            
+            with torch.no_grad():
+                outputs = model(**inputs)
+                prediction = torch.argmax(outputs.logits).item()
+                confidence = torch.max(torch.softmax(outputs.logits, dim=1)).item()
 
         confidence_color = (
             "#4CAF50" if confidence >= 0.8 else 
@@ -310,14 +230,14 @@ if detect_button:
         if confidence < 0.6:
             st.warning("Confidence is low. Prediction may be uncertain.")
 
-        # Explain button inside the detection block
+        # Explain button
         if st.button("Explain Prediction", use_container_width=True, type="secondary"):
             with st.spinner("Generating explanation..."):
                 explainer = lime_text.LimeTextExplainer(
                     class_names=["Human-Written", "AI-Generated"],
                     split_by="sentence",
                 )
-                exp = explainer.explain_instance(cleaned_text, predict_proba, num_features=10)
+                exp = explainer.explain_instance(text, predict_proba, num_features=10)
                 
                 st.markdown(
                     f"""
@@ -330,6 +250,26 @@ if detect_button:
                     """,
                     unsafe_allow_html=True,
                 )
+
+    # Save prediction to CSV (moved inside the detect_button block)
+    save_path = "src/data/datasets/user_submissions.csv"
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    
+    data = {
+        "text": [text],
+        "predicted_label": [prediction],
+        "confidence": [confidence]
+    }
+    df = pd.DataFrame(data)
+    
+    try:
+        if os.path.exists(save_path):
+            df.to_csv(save_path, mode="a", header=False, index=False)
+        else:
+            df.to_csv(save_path, index=False)
+        st.success(f"Prediction saved to {save_path} for future retraining!")
+    except PermissionError:
+        st.error("Permission denied. Could not save prediction data.")
 
 # Footer
 st.markdown(
