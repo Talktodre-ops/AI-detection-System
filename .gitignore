@@ -95,3 +95,4 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
+WhatsApp Video*.mp4
