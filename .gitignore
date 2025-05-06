@@ -96,3 +96,6 @@ nosetests.xml
 coverage.xml
 *.cover
 WhatsApp Video*.mp4
+
+# Large data files
+src/data/AI_Human.csv.zip
