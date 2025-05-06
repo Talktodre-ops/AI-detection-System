@@ -29,7 +29,7 @@ ENV/
 AI-Detection-311/
 AI-detection/
 
-# Model files and large data
+# Model files and large data (expanded)
 *.safetensors
 *.bin
 *.pt
@@ -38,8 +38,23 @@ AI-detection/
 *.h5
 *.tflite
 *.ckpt
+*.model
+*.pb
+*.savedmodel
+*.weights
 src/model/models/distilroberta/
 src/data/datasets/
+
+# Add any other large file types you might have
+*.arrow
+*.parquet
+*.msgpack
+*.las
+*.laz
+*.msh
+*.obj
+*.mtl
+*.stl
 
 # IDE specific files
 .idea/
