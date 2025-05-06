@@ -1,0 +1,1 @@
+AI-Detection-311\Scripts\activate

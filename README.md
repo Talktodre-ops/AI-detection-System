@@ -1,83 +1,97 @@
-# AI-Generated Text Detector
+# AI Detection System
 
-## Table of Contents
-- [Introduction](#introduction)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Features](#features)
-- [Directory Structure](#directory-structure)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgments](#acknowledgments)
+A comprehensive system for detecting AI-generated content using advanced NLP techniques.
 
----
+## Features
 
-## Introduction
-This project detects whether text is AI-generated or human-written using a DistilRoBERTa-based model. It supports PDF, TXT, and DOCX files, and includes explainability features using LIME.
-
----
+- Text preprocessing and cleaning
+- RoBERTa-based model for AI content detection
+- API for integration with other systems
+- Frontend interface for easy use
+- Comprehensive test suite
 
 ## Installation
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/your-username/AI-generated-content-detection.git
-   cd AI-generated-content-detection
 
-   python -m venv ai-detection-env
-    ai-detection-env\Scripts\activate  # On Windows
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/AI-detection-System.git
+cd AI-detection-System
+```
 
-    pip install -r requirements.txt
-Download the model (only required once)
-python
->>> from transformers import AutoModelForSequenceClassification
->>> AutoModelForSequenceClassification.from_pretrained(
-...     "distilroberta-base",
-...     cache_dir="src/model/models/distilroberta"
-... )
-exit()
+2. Create and activate a virtual environment:
+```bash
+python -m venv AI-Detection-311
+source AI-Detection-311/bin/activate  # On Windows: AI-Detection-311\Scripts\activate
+```
 
-Run the App
-streamlit run src/frontend/app.py
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-Features :
-Upload PDF/TXT/DOCX files or paste text.
-View predictions with confidence scores (AI/Human).
-Get explanations of influential text segments using LIME.
-Automatically save predictions to src/data/datasets/user_submissions.csv.
-UI Preview :
-App Screenshot
-<!-- Replace with your screenshot link -->
-AI-generated-content-detection/
-├── README.md
-├── requirements.txt
-├── src/
-│   ├── data/
-│   │   └── datasets/
-│   │       ├── cleaned_AI_Human.csv  # Original dataset (ensure this exists)
-│   │       └── user_submissions.csv  # Auto-saved predictions
-│   ├── frontend/
-│   │   ├── app.py
-│   │   └── assets/
-│   │       └── logo.png
-│   └── model/
-│       └── models/
-│           └── distilroberta/  # Model weights (auto-downloaded)
-├── retrain_model.py  # For retraining the model
-└── ... (other files like Draw.io diagrams)
+## Usage
 
-Contributing
-Retraining the Model :
-Add new data to src/data/datasets/user_submissions.csv.
+### Data Preprocessing
 
-python retrain_model.py
+```bash
+python -m src.data.clean_dataset input_data.csv output_data.csv
+```
 
-# Use CPU if CUDA unavailable
-pip install torch==2.0.1+cpu torchvision==0.15.2+cpu torchaudio==2.0.2+cpu --index-url https://download.pytorch.org/whl/cpu
+### Model Training
 
-Permission Issues :
-Ensure src/data/datasets/ has write permissions.
-Run the app as administrator if needed.
-3. How to Add a Screenshot
-Take a screenshot of your app.
-Upload it to a hosting service (e.g., Imgur).
-Replace https://i.imgur.com/EXAMPLE.png in the README.md with your image link.
+```bash
+python -m src.models.roberta_model
+```
+
+### Running the API
+
+```bash
+uvicorn src.api.main:app --reload
+```
+
+### Running the Frontend
+
+```bash
+streamlit run src.frontend.app
+```
+
+## Testing
+
+Run the test suite:
+
+```bash
+cd src
+python -m pytest tests/ --cov=src
+```
+
+## Project Structure
+
+```
+src/
+├── __init__.py
+├── api/
+│   ├── __init__.py
+│   ├── main.py
+│   └── database.py
+├── data/
+│   ├── __init__.py
+│   ├── preprocessing.py
+│   ├── clean_dataset.py
+│   └── split_data.py
+├── models/
+│   ├── __init__.py
+│   ├── roberta_model.py
+│   └── evaluate_model.py
+├── frontend/
+│   ├── __init__.py
+│   └── app.py
+└── tests/
+    ├── __init__.py
+    ├── test_api.py
+    ├── test_data_processing.py
+    └── test_model.py
+```
+
+## License
+
+[MIT License](LICENSE)

@@ -9,10 +9,10 @@ from lime import lime_text
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 import pandas as pd
 import numpy as np
-import csv  # Added for CSV quoting
+import csv
 
 st.set_page_config(
-    page_title="AI-Generated Text Detector",
+    page_title="AI-Generated Text Detector (GPU)",
     page_icon="🔍",
     layout="wide",
 )
@@ -83,18 +83,23 @@ st.markdown(
 
 @st.cache_resource
 def load_model_and_tokenizer():
-    # Fix the model path - use absolute path based on the script location
+    # Fix the model path - use the correct relative path from the frontend directory
     model_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "model", "models", "distilroberta")
     try:
         # Use local_files_only=True to ensure it doesn't try to download from HF
         tokenizer = AutoTokenizer.from_pretrained(model_dir, local_files_only=True)
-        model = AutoModelForSequenceClassification.from_pretrained(model_dir, local_files_only=True).to("cuda")
-        return tokenizer, model
+        # Check if CUDA is available and use it
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        st.sidebar.info(f"Using device: {device.upper()}")
+        if device == "cuda":
+            st.sidebar.success(f"GPU: {torch.cuda.get_device_name(0)}")
+        model = AutoModelForSequenceClassification.from_pretrained(model_dir, local_files_only=True).to(device)
+        return tokenizer, model, device
     except Exception as e:
         st.error(f"Error loading model: {str(e)}")
         st.stop()
 
-tokenizer, model = load_model_and_tokenizer()
+tokenizer, model, device = load_model_and_tokenizer()
 
 def read_file(file: UploadedFile) -> Optional[str]:
     """Read text from PDF/TXT/DOCX files."""
@@ -123,7 +128,7 @@ def predict_proba(text_list):
         truncation=True,
         max_length=512,  # Match the model's max context length
         return_tensors="pt",
-    ).to("cuda")
+    ).to(device)
     
     with torch.no_grad():
         outputs = model(**inputs)
@@ -131,7 +136,7 @@ def predict_proba(text_list):
     return probs
 
 # Title and logo
-st.title("🔍 AI-Generated Text Detector")
+st.title("🔍 AI-Generated Text Detector (GPU)")
 st.subheader("Identify AI vs. Human-Written Text with Confidence")
 
 # Input options
@@ -143,11 +148,6 @@ input_type = st.sidebar.radio(
     key="input_type",
     label_visibility="collapsed",
 )
-
-st.sidebar.markdown("---")
-st.sidebar.subheader("Additional Tools")
-if st.sidebar.button("🔍 Mixed Content Detector"):
-    switch_page("mixed_content_app")  # You'll need to import switch_page
 
 col1, col2 = st.columns([4, 1])
 
@@ -186,7 +186,7 @@ exp = None
 detect_button = st.button("Detect", use_container_width=True, type="primary")
 
 if detect_button:
-    if not text.strip():
+    if 'text' not in locals() or not text or not text.strip():
         st.warning("Please provide text to analyze.")
     else:
         with st.spinner("Analyzing..."):
@@ -196,7 +196,7 @@ if detect_button:
                 truncation=True,
                 max_length=512,
                 return_tensors="pt",
-            ).to("cuda")
+            ).to(device)
             
             with torch.no_grad():
                 outputs = model(**inputs)
@@ -258,25 +258,25 @@ if detect_button:
                     unsafe_allow_html=True,
                 )
 
-    # Save prediction to CSV (moved inside the detect_button block)
-    save_path = "src/data/datasets/user_submissions.csv"
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    
-    data = {
-        "text": [text],
-        "predicted_label": [prediction],
-        "confidence": [confidence]
-    }
-    df = pd.DataFrame(data)
-    
-    try:
-        if os.path.exists(save_path):
-            df.to_csv(save_path, mode="a", header=False, index=False)
-        else:
-            df.to_csv(save_path, index=False)
-        st.success(f"Prediction saved to {save_path} for future retraining!")
-    except PermissionError:
-        st.error("Permission denied. Could not save prediction data.")
+        # Save prediction to CSV
+        save_path = "src/data/datasets/user_submissions.csv"
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        
+        data = {
+            "text": [text],
+            "predicted_label": [prediction],
+            "confidence": [confidence]
+        }
+        df = pd.DataFrame(data)
+        
+        try:
+            if os.path.exists(save_path):
+                df.to_csv(save_path, mode="a", header=False, index=False)
+            else:
+                df.to_csv(save_path, index=False)
+            st.success(f"Prediction saved to {save_path} for future retraining!")
+        except PermissionError:
+            st.error("Permission denied. Could not save prediction data.")
 
 # Footer
 st.markdown(

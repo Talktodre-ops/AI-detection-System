@@ -1,40 +1,82 @@
-# Byte-compiled / optimized / DLL files
+# Python bytecode
 __pycache__/
 *.py[cod]
 *$py.class
-*.pyc
+*.so
+.Python
 
-# Virtual environment
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+AI-Detection-311/
 AI-detection/
 
-# Ignore datasets
-src/data/datasets
-
-# Ignore large model files 
-src/model/models/distilroberta/  
-
-# Exclude other large files
+# Model files and large data
 *.safetensors
 *.bin
 *.pt
+*.pth
+*.onnx
+*.h5
+*.tflite
+*.ckpt
+src/model/models/distilroberta/
+src/data/datasets/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+.ipynb_checkpoints/
 
 # Logs
 logs/
 *.log
+*.log.*
 
-# Dependency directories
-dist/
-build/
-*.egg-info/
+# Local configuration
+.env
+.env.local
+.env.*.local
+config.local.yaml
 
-# IDE-specific files
-.idea/
-.vscode/
-
-# OS-specific files
-.DS_Store
-Thumbs.db
-
-# Other temporary files
+# Temporary files
+tmp/
+temp/
 *.tmp
-*.swp
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover

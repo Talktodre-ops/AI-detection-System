@@ -1,0 +1,83 @@
+              precision    recall  f1-score   support
+
+       Human       0.99      1.00      1.00     61112
+          AI       1.00      0.99      1.00     36333
+
+    accuracy                           1.00     97445
+   macro avg       1.00      1.00      1.00     97445
+weighted avg       1.00      1.00      1.00     97445
+
+
+## Evaluation results 
+
+(AI-Detection-311) C:\Users\VICTUS\Documents\GITHUB\AI-detection-System\src\model>python evaluate_model.py
+2025-05-04 02:46:04,356: Using device: cuda
+2025-05-04 02:46:06,120: Test dataset loaded with 97445 samples
+C:\Users\VICTUS\Documents\GITHUB\AI-detection-System\src\model\evaluate_model.py:70: FutureWarning: `tokenizer` is deprecated and will be removed in version 5.0.0 for `Trainer.__init__`. Use `processing_class` instead.
+  trainer = Trainer(
+2025-05-04 02:46:06,203: Starting evaluation...
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3046/3046 [07:21<00:00,  6.90it/s]
+2025-05-04 02:53:28,257: Test Results:
+2025-05-04 02:53:28,258: Accuracy: 0.9902
+2025-05-04 02:53:28,258: Precision: 0.9763
+2025-05-04 02:53:28,258: Recall: 0.9979
+2025-05-04 02:53:28,259: F1: 0.9870
+
+
+##Error Analysis
+(AI-Detection-311) C:\Users\VICTUS\Documents\GITHUB\AI-detection-System\src\model>python analyze_results.py
+2025-05-04 03:05:11,276: Processed 0/97445 examples
+2025-05-04 03:07:22,252: Processed 4000/97445 examples
+2025-05-04 03:09:06,156: Processed 8000/97445 examples
+2025-05-04 03:10:14,961: Processed 12000/97445 examples
+2025-05-04 03:11:24,461: Processed 16000/97445 examples
+2025-05-04 03:12:34,154: Processed 20000/97445 examples
+2025-05-04 03:13:43,900: Processed 24000/97445 examples
+2025-05-04 03:14:53,921: Processed 28000/97445 examples
+2025-05-04 03:16:04,012: Processed 32000/97445 examples
+2025-05-04 03:17:14,156: Processed 36000/97445 examples
+2025-05-04 03:18:24,243: Processed 40000/97445 examples
+2025-05-04 03:19:34,335: Processed 44000/97445 examples
+2025-05-04 03:20:44,406: Processed 48000/97445 examples
+2025-05-04 03:21:54,473: Processed 52000/97445 examples
+2025-05-04 03:23:04,510: Processed 56000/97445 examples
+2025-05-04 03:24:14,577: Processed 60000/97445 examples
+2025-05-04 03:25:24,661: Processed 64000/97445 examples
+2025-05-04 03:26:34,718: Processed 68000/97445 examples
+2025-05-04 03:27:44,781: Processed 72000/97445 examples
+2025-05-04 03:28:54,863: Processed 76000/97445 examples
+2025-05-04 03:30:04,981: Processed 80000/97445 examples
+2025-05-04 03:31:15,102: Processed 84000/97445 examples
+2025-05-04 03:32:25,229: Processed 88000/97445 examples
+2025-05-04 03:33:35,323: Processed 92000/97445 examples
+2025-05-04 03:34:45,410: Processed 96000/97445 examples
+2025-05-04 03:35:11,250: Confusion matrix saved to ./analysis\confusion_matrix.png
+2025-05-04 03:35:11,272: Classification report saved to ./analysis\classification_report.txt
+2025-05-04 03:35:11,287: Misclassified examples saved to ./analysis\misclassified_examples.csv
+2025-05-04 03:35:11,288: Total misclassifications: 344
+2025-05-04 03:35:11,288: Human text classified as AI: 18
+2025-05-04 03:35:11,289: AI text classified as human: 326
+2025-05-04 03:35:11,289:
+Sample of misclassified examples:
+2025-05-04 03:35:11,289: Example 1:
+2025-05-04 03:35:11,290:   True: AI, Predicted: Human, Confidence: 1.0000
+2025-05-04 03:35:11,290:   Text: dear state senator cheer for the electoral college think about it without the electoral college people in states with fewer people could get ignored the electoral college lakes it so that every vote c...
+2025-05-04 03:35:11,290: --------------------------------------------------------------------------------
+2025-05-04 03:35:11,290: Example 2:
+2025-05-04 03:35:11,291:   True: AI, Predicted: Human, Confidence: 1.0000
+2025-05-04 03:35:11,291:   Text: deer teachername what happens when theres dn event but you have to clean up for community service is it right to do the right thing community service is important to the community because in the futur...
+2025-05-04 03:35:11,291: --------------------------------------------------------------------------------
+2025-05-04 03:35:11,291: Example 3:
+2025-05-04 03:35:11,292:   True: AI, Predicted: Human, Confidence: 1.0000
+2025-05-04 03:35:11,292:   Text: should some people believe in praising a students work to build selfesteem even if the work is not the students best effort they believe that students must be selfconfident in order to learn i agree w...
+2025-05-04 03:35:11,292: --------------------------------------------------------------------------------
+2025-05-04 03:35:11,292: Example 4:
+2025-05-04 03:35:11,292:   True: AI, Predicted: Human, Confidence: 1.0000
+2025-05-04 03:35:11,292:   Text: dear teachername what happens when theres an event but you have to clean up for community service is it right to do the right thing community service is important to the community because in the futur...
+2025-05-04 03:35:11,293: --------------------------------------------------------------------------------
+2025-05-04 03:35:11,293: Example 5:
+2025-05-04 03:35:11,293:   True: AI, Predicted: Human, Confidence: 1.0000
+2025-05-04 03:35:11,293:   Text: should some people believe in praising a students work to build selfesteem even if the work is not the students best effort they believe that students must be selfconfident in order to learn i agree w...
+2025-05-04 03:35:11,293: --------------------------------------------------------------------------------
+
+(AI-Detection-311) C:\Users\VICTUS\Documents\GITHUB\AI-detection-System\src\model>

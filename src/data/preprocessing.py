@@ -1,4 +1,6 @@
 import re
+import pandas as pd
+import numpy as np
 from transformers import BertTokenizer
 
 def clean_text(text):
@@ -12,12 +14,8 @@ def clean_text(text):
     Returns:
         str: The cleaned text.
     """
-    text = text.lower()
-    text = re.sub(r'[^a-z0-9\s]', '', text)
-    text = re.sub(r'[\n\r\t]', ' ', text)
-    # Collapse multiple spaces into one
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
+    # Use the more comprehensive preprocess_text function
+    return preprocess_text(text)
 
 def tokenize_text(text, tokenizer, max_length=128):
     """
@@ -31,4 +29,35 @@ def tokenize_text(text, tokenizer, max_length=128):
     Returns:
         dict: The tokenized input IDs and attention mask.
     """
-    return tokenizer(text, padding=True, truncation=True, max_length=max_length, return_tensors="pt")
+    # First clean the text
+    cleaned_text = preprocess_text(text)
+    return tokenizer(cleaned_text, padding=True, truncation=True, max_length=max_length, return_tensors="pt")
+
+def preprocess_text(text):
+    """
+    Preprocess text for model input
+    
+    Args:
+        text (str): Input text to preprocess
+        
+    Returns:
+        str: Preprocessed text
+    """
+    # Handle NaN, None, or empty values
+    if pd.isna(text) or text is None or text == "":
+        return ""
+        
+    # Ensure text is a string
+    text = str(text)
+        
+    # Basic preprocessing
+    text = text.strip()
+    text = text.lower()
+    
+    # Remove punctuation
+    text = re.sub(r'[^\w\s]', ' ', text)
+    
+    # Collapse multiple spaces into one
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text

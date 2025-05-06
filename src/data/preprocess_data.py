@@ -1,5 +1,8 @@
 import pandas as pd
-from src.data.preprocessing import clean_text  # Adjust path if needed
+import os
+
+# Use direct import since preprocessing.py is in the same directory
+from preprocessing import clean_text
 
 def preprocess_data(raw_path, cleaned_path):
     """
@@ -21,6 +24,12 @@ def preprocess_data(raw_path, cleaned_path):
     print(f"Cleaned data saved to {cleaned_path}")
 
 if __name__ == "__main__":
-    raw_path = "src/data/datasets/AI_Human.csv"  # Raw dataset path
-    cleaned_path = "src/data/datasets/cleaned_AI_Human.csv"
+    # Use relative paths based on the script location
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    raw_path = os.path.join(script_dir, "datasets", "AI_Human.csv")
+    cleaned_path = os.path.join(script_dir, "datasets", "cleaned_AI_Human.csv")
+    
+    # Ensure the datasets directory exists
+    os.makedirs(os.path.join(script_dir, "datasets"), exist_ok=True)
+    
     preprocess_data(raw_path, cleaned_path)
