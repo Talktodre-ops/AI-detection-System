@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import pandas as pd
 import os
+from fact_checker import verify_claims
 
 app = FastAPI()
 
@@ -9,6 +10,14 @@ app = FastAPI()
 class Feedback(BaseModel):
     text: str
     true_label: int  # 0 for human, 1 for AI
+
+class TextIn(BaseModel):
+    text: str
+
+@app.post("/fact-check")
+@app.post("/fact-check/")
+async def fact_check(text_in: TextIn):
+    return await verify_claims(text_in.text)  # await the coroutine
 
 @app.post("/flag_prediction/")
 async def flag_prediction(feedback: Feedback):

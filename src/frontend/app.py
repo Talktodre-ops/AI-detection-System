@@ -10,6 +10,10 @@ from streamlit.runtime.uploaded_file_manager import UploadedFile
 import pandas as pd
 import numpy as np
 import csv  # Added for CSV quoting
+import requests
+
+# API URL
+API_URL = "http://127.0.0.1:8000"
 
 st.set_page_config(
     page_title="AI-Generated Text Detector",
@@ -177,11 +181,10 @@ with col2:
     st.empty()  # Space for buttons
 
 # Initialize variables
-prediction = None
-confidence = None
-confidence_color = None
-explainer = None
-exp = None
+if 'prediction' not in st.session_state:
+    st.session_state.prediction = None
+if 'confidence' not in st.session_state:
+    st.session_state.confidence = None
 
 detect_button = st.button("Detect", use_container_width=True, type="primary")
 
@@ -200,63 +203,87 @@ if detect_button:
             
             with torch.no_grad():
                 outputs = model(**inputs)
-                prediction = torch.argmax(outputs.logits).item()
-                confidence = torch.max(torch.softmax(outputs.logits, dim=1)).item()
+                st.session_state.prediction = torch.argmax(outputs.logits).item()
+                st.session_state.confidence = torch.max(torch.softmax(outputs.logits, dim=1)).item()
 
-        confidence_color = (
-            "#4CAF50" if confidence >= 0.8 else 
-            "#FFA500" if confidence >= 0.5 else 
-            "#FF5722"
-        )
+if st.session_state.prediction is not None:
+    confidence_color = (
+        "#4CAF50" if st.session_state.confidence >= 0.8 else
+        "#FFA500" if st.session_state.confidence >= 0.5 else
+        "#FF5722"
+    )
 
-        # Display results
-        st.markdown(
-            f"""
-            <div class="result-container">
-                <h3 style="color: {'#FF4B4B' if prediction else '#34C759'}; font-weight: bold;">
-                    {f"{'AI-Generated' if prediction else 'Human-Written'}"} 
-                    <small style="color: #808080; font-size: 14px;">(Confidence)</small>
-                </h3>
-                <div class="confidence-bar">
-                    <div class="confidence-value" style="color: {confidence_color};">
-                        {f"{confidence:.0%}"}
-                    </div>
-                    <div class="radial-progress" style="
-                        width: 100px;
-                        height: 100px;
-                        border-radius: 50%;
-                        background: conic-gradient({confidence_color} 0% {confidence*360}deg, #444 {confidence*360}deg);
-                        margin: 0 auto;
-                    "></div>
+    # Display results
+    st.markdown(
+        f"""
+        <div class="result-container">
+            <h3 style="color: {'#FF4B4B' if st.session_state.prediction else '#34C759'}; font-weight: bold;">
+                {f"{'AI-Generated' if st.session_state.prediction else 'Human-Written'}"} 
+                <small style="color: #808080; font-size: 14px;">(Confidence)</small>
+            </h3>
+            <div class="confidence-bar">
+                <div class="confidence-value" style="color: {confidence_color};">
+                    {f"{st.session_state.confidence:.0%}"}
                 </div>
+                <div class="radial-progress" style="
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 50%;
+                    background: conic-gradient({confidence_color} 0% {st.session_state.confidence*360}deg, #444 {st.session_state.confidence*360}deg);
+                    margin: 0 auto;
+                "></div>
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-        if confidence < 0.6:
-            st.warning("Confidence is low. Prediction may be uncertain.")
+    if st.session_state.confidence < 0.6:
+        st.warning("Confidence is low. Prediction may be uncertain.")
 
-        # Explain button
-        if st.button("Explain Prediction", use_container_width=True, type="secondary"):
-            with st.spinner("Generating explanation..."):
-                explainer = lime_text.LimeTextExplainer(
-                    class_names=["Human-Written", "AI-Generated"],
-                    split_by="sentence",
-                )
-                exp = explainer.explain_instance(text, predict_proba, num_features=10)
-                
-                st.markdown(
-                    f"""
-                    <div class="lime-explanation">
-                        <h4>Key Influencing Factors:</h4>
-                        <div style="padding: 15px;">
-                            {exp.as_html()}
-                        </div>
+    # Fact-check button
+    if st.button("Verify Facts", use_container_width=True):
+        with st.spinner("Fact-checking..."):
+            try:
+                response = requests.post(f"{API_URL}/fact-check", json={"text": text})
+                if response.status_code == 200:
+                    results = response.json()
+                    st.session_state.fact_check_results = results
+                else:
+                    st.error(f"Fact-checking failed with status code {response.status_code}")
+            except requests.exceptions.RequestException as e:
+                st.error(f"Could not connect to the fact-checking service: {e}")
+
+    if 'fact_check_results' in st.session_state:
+        results = st.session_state.fact_check_results
+        if results.get("claims"):
+            with st.expander("Fact-Checking Results", expanded=True):
+                for c in results["claims"]:
+                    st.markdown(f"**Claim:** {c['claim']}")
+                    st.markdown(f"- Verdict: `{c['verdict']}`  | Confidence: `{c['confidence']:.2f}`")
+                    for ev in c.get("citations", []):
+                        st.markdown(f"  - [{ev.get('title')}]({ev.get('url')}) — {ev.get('stance')} (score {ev.get('score')})")
+
+    # Explain button
+    if st.button("Explain Prediction", use_container_width=True, type="secondary"):
+        with st.spinner("Generating explanation..."):
+            explainer = lime_text.LimeTextExplainer(
+                class_names=["Human-Written", "AI-Generated"],
+                split_by="sentence",
+            )
+            exp = explainer.explain_instance(text, predict_proba, num_features=10)
+            
+            st.markdown(
+                f"""
+                <div class="lime-explanation">
+                    <h4>Key Influencing Factors:</h4>
+                    <div style="padding: 15px;">
+                        {exp.as_html()}
                     </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
     # Save prediction to CSV (moved inside the detect_button block)
     save_path = "src/data/datasets/user_submissions.csv"
@@ -264,8 +291,8 @@ if detect_button:
     
     data = {
         "text": [text],
-        "predicted_label": [prediction],
-        "confidence": [confidence]
+        "predicted_label": [st.session_state.prediction],
+        "confidence": [st.session_state.confidence]
     }
     df = pd.DataFrame(data)
     
