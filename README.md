@@ -1,6 +1,7 @@
 # AI Detection System
 
 A comprehensive system for detecting AI-generated content using advanced NLP techniques. This project provides a suite of tools for data preprocessing, model training, and content analysis, all accessible through a user-friendly Streamlit web application.
+![aidetect](https://github.com/user-attachments/assets/277aea2c-6321-4700-9a49-bd421bf8db28)
 
 ## Features
 
