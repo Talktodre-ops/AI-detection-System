@@ -1,3 +1,7 @@
+# =============================================
+# PYTHON
+# =============================================
+
 # Python bytecode
 __pycache__/
 *.py[cod]
@@ -18,18 +22,96 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Virtual environments
 venv/
 env/
 ENV/
+env.bak/
+venv.bak/
 AI-Detection-311/
 AI-detection/
 
-# Model files and large data (expanded)
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# =============================================
+# NODE.JS / FRONTEND
+# =============================================
+
+# Dependencies
+node_modules/
+jspm_packages/
+bower_components/
+
+# Production build
+dist/
+dist-ssr/
+*.local
+
+# Lock files (keep package-lock.json, but ignore others)
+yarn.lock
+pnpm-lock.yaml
+.pnpm-debug.log*
+
+# Frontend build cache
+.vite/
+.turbo/
+.parcel-cache/
+.next/
+out/
+.nuxt/
+
+# Frontend testing
+.nyc_output
+coverage/
+
+# =============================================
+# ENVIRONMENT & SECRETS
+# =============================================
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+config.local.yaml
+
+# API keys and secrets
+*.pem
+*.key
+*.p12
+secrets.json
+.streamlit/secrets.toml
+
+# =============================================
+# MODEL FILES & LARGE DATA
+# =============================================
+
+# Model files
 *.safetensors
 *.bin
 *.pt
@@ -42,13 +124,38 @@ AI-detection/
 *.pb
 *.savedmodel
 *.weights
+
+# Model directories
 src/model/models/distilroberta/
 src/data/datasets/
+models/
+checkpoints/
 
-# Add any other large file types you might have
+# Large data formats
 *.arrow
 *.parquet
 *.msgpack
+*.feather
+*.hdf5
+*.pkl
+*.pickle
+
+# Data files
+src/data/AI_Human.csv.zip
+*.csv.zip
+*.json.gz
+*.tar.gz
+*.zip
+
+# Media files
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+WhatsApp Video*.mp4
+
+# 3D files
 *.las
 *.laz
 *.msh
@@ -56,46 +163,148 @@ src/data/datasets/
 *.mtl
 *.stl
 
-# IDE specific files
-.idea/
+# =============================================
+# IDE & EDITORS
+# =============================================
+
+# VSCode
 .vscode/
+*.code-workspace
+
+# IntelliJ / PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
 *.swp
 *.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Atom
+.atom/
+
+# =============================================
+# OS FILES
+# =============================================
+
+# macOS
 .DS_Store
-.ipynb_checkpoints/
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+.nfs*
+
+# =============================================
+# LOGS & DEBUGGING
+# =============================================
 
 # Logs
 logs/
 *.log
 *.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
-# Local configuration
-.env
-.env.local
-.env.*.local
-config.local.yaml
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# =============================================
+# TEMPORARY & CACHE
+# =============================================
 
 # Temporary files
 tmp/
 temp/
 *.tmp
+*.temp
+*.bak
+*.swp
+*.cache
 
-# Streamlit
-.streamlit/secrets.toml
+# Python cache
+*.pyc
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
 
-# Coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-WhatsApp Video*.mp4
+# =============================================
+# DEPLOYMENT & BUILD
+# =============================================
 
-# Large data files
-src/data/AI_Human.csv.zip
+# Vercel
+.vercel
+.vercel.json
+
+# Railway
+.railway/
+
+# Render
+.render/
+
+# Docker
+*.dockerfile
+docker-compose.override.yml
+
+# =============================================
+# MISC
+# =============================================
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Backup files
+*-backup
+*.backup
