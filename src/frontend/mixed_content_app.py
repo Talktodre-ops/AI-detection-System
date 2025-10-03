@@ -1,97 +1,16 @@
 import streamlit as st
 import os
 import sys
-import pandas as pd
 import torch
-from typing import Optional, List
-import io
+from typing import Optional
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 import PyPDF2
 import docx
 import requests
-from textblob import TextBlob
 
 # Add the src directory to the path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from model.mixed_content_detector import MixedContentDetector
-#from api.fact_checker import FactChecker
-try:
-	import spacy
-	_NLP = spacy.load("en_core_web_sm")
-except Exception:
-	_NLP = None
-
-FACT_ENTITY_TYPES = {
-	"PERSON","ORG","GPE","LOC","NORP","FAC","PRODUCT","EVENT",
-	"WORK_OF_ART","LAW","LANGUAGE","DATE","TIME","PERCENT","MONEY",
-	"QUANTITY","ORDINAL","CARDINAL"
-}
-
-def _score_sentence(sent):
-	# Heuristic "claiminess" score
-	toks = [t for t in sent if not t.is_space]
-	has_verb = any(t.pos_ in ("VERB","AUX") for t in toks)
-	has_cop = any(t.lemma_ in ("be","have") for t in toks)
-	ents = [e for e in sent.ents if e.label_ in FACT_ENTITY_TYPES]
-	has_digit = any(ch.isdigit() for ch in sent.text)
-	is_question = "?" in sent.text
-	length = len(toks)
-
-	score = 0
-	if has_verb: score += 1
-	if has_cop: score += 0.5
-	score += min(2, len(ents)) * 0.8
-	if has_digit: score += 0.5
-	if 6 <= length <= 40: score += 0.5
-	if is_question: score -= 2
-	return score
-
-def extract_claims(text: str, max_claims: int = 5) -> List[str]:
-	text = (text or "").strip()
-	if not text:
-		return []
-
-	# Prefer spaCy sentence-based claim detection
-	if _NLP is not None:
-		doc = _NLP(text)
-		candidates = []
-		for sent in doc.sents:
-			s = sent.text.strip()
-			if not s: 
-				continue
-			score = _score_sentence(sent)
-			if score > 1:  # threshold for likely factual statement
-				candidates.append((score, s))
-
-		# Dedup normalized sentences and keep top-k by score
-		seen = set()
-		claims = []
-		for _, s in sorted(candidates, key=lambda x: x[0], reverse=True):
-			key = " ".join(s.lower().split())
-			if key not in seen:
-				seen.add(key)
-				claims.append(s[:240])
-			if len(claims) >= max_claims:
-				break
-
-		if claims:
-			return claims
-
-	# Fallback to TextBlob noun phrases + sentence fallback
-	blob = TextBlob(text)
-	cands = list({p.strip() for p in blob.noun_phrases if len(p.split()) > 1})
-	if len(cands) < 2:
-		cands.extend([s.strip() for s in text.split(".") if len(s.split()) > 3][:3])
-
-	seen = set()
-	claims = []
-	for c in cands:
-		c = c[:240]
-		k = c.lower()
-		if k not in seen:
-			seen.add(k)
-			claims.append(c)
-	return claims[:max_claims]
 
 # Set page configuration
 st.set_page_config(
