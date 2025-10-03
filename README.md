@@ -2,6 +2,8 @@
 
 A comprehensive AI-powered system for detecting AI-generated content and verifying factual claims using advanced NLP techniques. This project provides a complete suite of tools for content analysis, fact-checking, and mixed content detection, all accessible through user-friendly web applications and RESTful APIs.
 
+![aidetect](https://github.com/user-attachments/assets/277aea2c-6321-4700-9a49-bd421bf8db28)
+
 ## 🚀 Key Features
 
 ### 🔍 **AI Content Detection**
@@ -18,7 +20,7 @@ A comprehensive AI-powered system for detecting AI-generated content and verifyi
 
 ### ✅ **Fact-Checking & Verification**
 - **Intelligent Claim Extraction:** Uses spaCy NLP to identify factual claims and statements
-- **Multi-Source Evidence Retrieval:** 
+- **Multi-Source Evidence Retrieval:**
   - Google Custom Search API (primary)
   - Wikipedia API (fallback)
   - DuckDuckGo Search (fallback)
@@ -162,11 +164,11 @@ export NLI_MODEL_NAME="distilroberta-base-mnli"
 import requests
 
 # AI Detection
-response = requests.post("http://127.0.0.1:8000/predict/", 
+response = requests.post("http://127.0.0.1:8000/predict/",
                         json={"text": "Your text here"})
 
 # Fact-Checking
-response = requests.post("http://127.0.0.1:8000/fact-check/", 
+response = requests.post("http://127.0.0.1:8000/fact-check/",
                         json={"text": "The Eiffel Tower is in Paris."})
 ```
 
@@ -296,6 +298,6 @@ For questions, issues, or contributions:
 
 ---
 
-**Developed by:** [Talktodre-ops](https://github.com/Talktodre-ops)  
-**Version:** 2.0.0  
+**Developed by:** [Talktodre-ops](https://github.com/Talktodre-ops)
+**Version:** 2.0.0
 **Last Updated:** January 2025
